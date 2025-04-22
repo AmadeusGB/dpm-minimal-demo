@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+import { Email } from '@/store/useStore'
 
 export async function POST(request: Request) {
   try {
-    const email = await request.json()
+    const email: Email = await request.json()
     
     // Validate email format
     if (!email.to.endsWith('@deeper.mail')) {

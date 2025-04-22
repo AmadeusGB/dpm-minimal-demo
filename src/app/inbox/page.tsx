@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useStore } from '@/store/useStore'
+import { useStore, Email } from '@/store/useStore'
 import { format } from 'date-fns'
 import { useEffect } from 'react'
 
@@ -9,7 +9,7 @@ export default function InboxPage() {
   const router = useRouter()
   const currentUser = useStore((state) => state.currentUser)
   const inbox = useStore((state) => state.inbox)
-  const loadInbox = useStore((state) => state.loadInbox)
+  const addToInbox = useStore((state) => state.addToInbox)
 
   useEffect(() => {
     if (!currentUser) {
@@ -22,7 +22,12 @@ export default function InboxPage() {
         const response = await fetch(`/api/inbox?user=${currentUser}`)
         if (response.ok) {
           const data = await response.json()
-          loadInbox(data)
+          const existingIds = new Set(inbox.map(email => email.id))
+          data.forEach((email: Email) => {
+            if (!existingIds.has(email.id)) {
+              addToInbox(email)
+            }
+          })
         }
       } catch (error) {
         console.error('Error fetching inbox:', error)
@@ -30,7 +35,7 @@ export default function InboxPage() {
     }
 
     fetchInbox()
-  }, [currentUser, loadInbox, router])
+  }, [currentUser, addToInbox, router, inbox])
 
   if (!currentUser) {
     return null
@@ -55,24 +60,26 @@ export default function InboxPage() {
               {inbox.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">No emails in your inbox</p>
               ) : (
-                inbox.map((email, index) => (
-                  <div
-                    key={index}
-                    className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => router.push(`/inbox/${index}`)}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">{email.from}</p>
-                        <p className="text-gray-600">{email.subject}</p>
+                [...inbox]
+                  .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                  .map((email, index) => (
+                    <div
+                      key={email.id}
+                      className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => router.push(`/inbox/${email.id}`)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{email.from}</p>
+                          <p className="text-gray-600">{email.subject}</p>
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          {format(new Date(email.timestamp), 'MMM d, yyyy HH:mm')}
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-500">
-                        {format(new Date(email.timestamp), 'MMM d, yyyy HH:mm')}
-                      </p>
+                      <p className="mt-2 text-gray-600 line-clamp-2">{email.content}</p>
                     </div>
-                    <p className="mt-2 text-gray-600 line-clamp-2">{email.content}</p>
-                  </div>
-                ))
+                  ))
               )}
             </div>
           </div>

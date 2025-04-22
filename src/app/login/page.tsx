@@ -1,47 +1,66 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/store/useStore'
-import { useState } from 'react'
 
 export default function LoginPage() {
-  const router = useRouter()
-  const setCurrentUser = useStore((state) => state.setCurrentUser)
   const [email, setEmail] = useState('')
+  const router = useRouter()
+  const { setCurrentUser, initializeWebSocket } = useStore()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.endsWith('@deeper.mail')) {
-      alert('Please use a @deeper.mail email address')
-      return
+    if (email.endsWith('@deeper.mail')) {
+      console.log('[Login] Logging in as:', email);
+      
+      // 初始化WebSocket连接
+      initializeWebSocket('ws://localhost:3002')
+      
+      // 设置当前用户
+      setCurrentUser(email)
+      
+      // 注册节点
+      const wsClient = useStore.getState().wsClient
+      if (wsClient) {
+        console.log('[Login] Registering node with WebSocket');
+        wsClient.register('localhost', 3000, email)
+      } else {
+        console.error('[Login] WebSocket client not initialized');
+      }
+
+      router.push('/inbox')
+    } else {
+      alert('Please use an email address ending with @deeper.mail')
     }
-    setCurrentUser(email)
-    router.push('/inbox')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="sr-only">
-              Email address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="username@deeper.mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email-address" className="sr-only">
+                Email address
+              </label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
           </div>
 
           <div>
