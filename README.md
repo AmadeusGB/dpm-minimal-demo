@@ -17,12 +17,12 @@ DPM aims to create a truly decentralized email system where:
 ```
    ┌───────────────┐                  ┌───────────────┐
    │   Device A    │                  │   Device B    │
-   │ alice@d.mail  │───────DPN───────▶│  bob@d.mail  │
+   │ alice@d.mail  │───────DPN───────▶│  bob@d.mail   │
    └───────┬───────┘                  └───────┬───────┘
            │                                  │
     Local Mail Service                Local Mail Service
            │                                  │
-   ┌───────┴───────┐                  ┌──────┴────────┐
+   ┌───────┴───────┐                  ┌───────┴───────┐
    │  Mail Engine  │                  │  Mail Engine  │
    │ ┌──────────┐  │                  │ ┌──────────┐  │
    │ │ Outbox   │  │                  │ │  Inbox   │  │
