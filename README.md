@@ -32,10 +32,10 @@ DPM aims to create a truly decentralized email system where:
    │ └──────────┘  │                  │ └──────────┘  │
    └───────┬───────┘                  └───────┬───────┘
            │                                  │
-   ┌───────┴──────────────────────────┴───────┐
-   │              AtomOS Layer               │
-   │    DPN Message Router + Local Storage   │
-   └────────────────────────────────────────┘
+   ┌───────┴──────────────────────────────────┴───────┐
+   │                   AtomOS Layer                   │
+   │       DPN Message Router + Local Storage         │
+   └──────────────────────────────────────────────────┘
 ```
 
 ### 2. Component Description
